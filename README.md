@@ -7,3 +7,8 @@ Optimization files:
 
 Visualization files:
 1. short_memory_x: In these files, 2 common hiddden attacks have been implemented and compared with our optimal attack.
+2. vt_motivation: Same implementation with long-memory detector.
+
+Helper:
+1.PID
+2.state_estimation

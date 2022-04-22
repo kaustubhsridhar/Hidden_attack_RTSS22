@@ -9,7 +9,7 @@ class Exp:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
-                 'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
 
     def __init__(self, sysc, Ts, epsilon=1e-7):
@@ -32,7 +32,7 @@ class vt:
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'xmeasure', 'xreal', 'att', 'cin', 'place', 'maxc', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'xmeasure', 'xreal', 'att', 'cin', 'place', 'maxc', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
     A = [[-25 / 3]]
     B = [[5]]
@@ -82,7 +82,7 @@ class vt:
         # run surge attack on given cusum_thres and cusum_drift, start from some high upper bound of surge attack
         # then decrease this upper bound until you have attack > upper bound at some time, limit_upbound = upper bound
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.sysd.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
 
 
 class dc:
@@ -90,7 +90,7 @@ class dc:
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
     J = 0.01
     b = 0.1
@@ -146,14 +146,14 @@ class dc:
         self.safeset = {'lo': [-4, -1000000000, -100000000], 'up': [4, 1000000000, 100000000]}
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.pinv(np.array(self.B))
+        self.dis_B_inv = np.linalg.pinv(np.array(self.sysd.B))
 
 class ap:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     A = [[-0.313, 56.7, 0],
          [-0.0139, -0.426, 0],
          [0, 56.7, 0]]
@@ -202,14 +202,14 @@ class ap:
         self.safeset = {'lo': [-100, -100, 0], 'up': [100, 100, 2]}
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
 
 class qd:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
     g = 9.81
     m = 0.468
@@ -272,14 +272,14 @@ class qd:
         self.safeset = {'lo': [-10000] * 8 + [-1], 'up': [10000] * 8 + [8]}# model
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
         
 class RLC:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape'] 
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape'] 
     count = 0
     R = 10000
     L = 0.5
@@ -335,14 +335,14 @@ class RLC:
         self.safeset = {'lo': [0, -5], 'up': [7, 5]} # model
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
         
 class DCS:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape'] 
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape'] 
 
     A = [[0, 101, 0], [-6.6 ,-100, 50],[0,0,-598.8]]
     B = [[0], [0], [23952.1]]
@@ -391,14 +391,14 @@ class DCS:
         self.safeset = {'lo': [0, -5], 'up': [7, 5]} # model
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
         
 class dcspeed:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'ymeasure', 'yreal', 'att', 'cin', 'place', 'maxc', 'xreal', 'xmeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
     J = 0.01
     b = 0.1
@@ -451,14 +451,14 @@ class dcspeed:
         self.safeset = {'lo': [-4, -1000000000, -100000000], 'up': [4, 1000000000, 100000000]}
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
 
 class vs_testbed:
     __slots__ = ['name', 'sysc', 'Ts', 'sysd', 'x_0', 'y_0', 'p', 'i', 'd', 'ref',
                  'est', 'slot', 't_arr', 't_attack', 't_detect', 'attacks', 'y_index',
                  'safeset', 'target_set', 'control_limit', 'max_k', 'worst_case_control', 'k', 'epsilon',
                  'sep_graph', 'y_label', 'x_left', 'y_up', 'y_lo', 'total', 'thres', 'drift', 'y_real_arr',
-                 's', 'score', 'xmeasure', 'xreal', 'att', 'cin', 'place', 'maxc','yreal','ymeasure', 'limit_upbound', 'B_inv', 'ref_initial_in_right_shape']
+                 's', 'score', 'xmeasure', 'xreal', 'att', 'cin', 'place', 'maxc','yreal','ymeasure', 'limit_upbound', 'dis_B_inv', 'ref_initial_in_right_shape']
     count = 0
     A = [[-0.6922]]
     B = [[0.1231]]
@@ -504,5 +504,5 @@ class vs_testbed:
         self.safeset = {'lo': [-2.7], 'up': [2.7]}
         # ---------------------
         self.limit_upbound = 2.2
-        self.B_inv = np.linalg.inv(np.array(self.B))
+        self.dis_B_inv = np.linalg.inv(np.array(self.sysd.B))
 

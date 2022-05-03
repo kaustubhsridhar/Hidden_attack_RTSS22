@@ -35,6 +35,7 @@ class vt:
         self.R = np.array([[1]])
         self.dt = 0.02
         self.x_ref = np.array([[1]])
+        self.attacked_element_idx = 0
 
         self.CUSUM_thresh = np.array([[5]])
         self.CUSUM_drift = np.array([[0]])
@@ -83,6 +84,7 @@ class dc:
         self.Q = np.eye(self.A_dim)
         self.R = np.array([[1]])
         self.dt = 0.2
+        self.attacked_element_idx = 0
         self.x_ref = np.array([[math.pi / 2.0], [0], [0]])
 
         self.CUSUM_thresh = np.array([[0.2]])
@@ -109,4 +111,4 @@ class dc:
         self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)
 
     def controller(self, x_measured, x_ref):
-        return (-0.27698396)*(x_measured - x_ref)+self.u
+        return (-0.27698396)*(x_measured[self.attacked_element_idx, 0] - x_ref[self.attacked_element_idx, 0])+self.u

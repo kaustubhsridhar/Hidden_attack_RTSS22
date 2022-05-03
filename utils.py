@@ -89,9 +89,12 @@ def short_mem_opt_attack(sys, steps = 100, short_window = 20, verbose = False):
     """
     small_c = []
     for row_idx in range(steps):
-        row = [ np.linalg.matrix_power(sys.Ad, steps - row_idx - 1) @ sys.Bd @ K * (-1)]
+        matrix_coeff_of_x = np.linalg.matrix_power(sys.Ad, steps - row_idx - 1) @ sys.Bd @ K * (-1)
+        row_corresponding_to_attacked_element = matrix_coeff_of_x[sys.attacked_element_idx, :].reshape(sys.A_dim, 1)
+        row = [ row_corresponding_to_attacked_element ]
         small_c.append(row)
     small_c = np.block(small_c)
+    
     assert (small_c.shape[0] == sys.A_dim*steps and small_c.shape[1] == 1), f"actual: {small_c.shape}, expected: {(sys.A_dim*steps, 1)}"
 
     """     and OPTIMIZATION Below...
@@ -142,7 +145,7 @@ def attacked_state(sys, type = 'surge'):
 
         if slot_idx > sys.slot_for_start_of_attack - 1 and type == 'optimal':
             # overwrite x_measured
-            x_measured = sys.optimal_attack[0]
+            x_measured = sys.optimal_attack[slot_idx - sys.slot_for_start_of_attack - 1]
 
         if slot_idx > sys.slot_for_start_of_attack:
             # compute atk

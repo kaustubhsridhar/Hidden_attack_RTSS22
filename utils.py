@@ -59,7 +59,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     ABS_VALUE_Big_A = np.block(ABS_VALUE_Big_A)
     # Finally, we have, for Big_A...
     Big_A = np.vstack((CUSUM_Big_A, CONTROL_Big_A, ABS_VALUE_Big_A))
-    assert (Big_A.shape[0] == 3*sys.A_dim*steps and Big_A.shape[1] == sys.A_dim*steps), f"actual: {Big_A.shape} [CUSUM {CUSUM_Big_A.shape}, CONTROL {CONTROL_Big_A.shape}, ABS_VALUE {ABS_VALUE_Big_A.shape}], expected: {(3*sys.A_dim*steps, sys.A_dim*steps)}"
+    # assert (Big_A.shape[0] == 3*sys.A_dim*steps and Big_A.shape[1] == sys.A_dim*steps), f"actual: {Big_A.shape} [CUSUM {CUSUM_Big_A.shape}, CONTROL {CONTROL_Big_A.shape}, ABS_VALUE {ABS_VALUE_Big_A.shape}], expected: {(3*sys.A_dim*steps, sys.A_dim*steps)}"
 
     """     We have the same 3 sets of constrainst for Big_B also as follows 
     """
@@ -93,14 +93,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     ABS_VALUE_Big_B = np.block(ABS_VALUE_Big_B)
     # Finally, we have, Big_B...
     Big_B = np.vstack((CUSUM_Big_B, CONTROL_Big_B, ABS_VALUE_Big_B))
-    assert (Big_B.shape[0] == 3*sys.A_dim*steps and Big_B.shape[1] == 1), f"actual: {Big_B.shape} [CUSUM {CUSUM_Big_B.shape}, CONTROL {CONTROL_Big_B.shape}, ABS_VALUE {ABS_VALUE_Big_B.shape}], expected: {(3*sys.A_dim*steps, 1)}"
-
-    # """     Let's take only the specific row of every A_dim step from Big_A/Big_B 
-    # """
-    # Big_A = Big_A[sys.attacked_element_idx::sys.A_dim, sys.attacked_element_idx::sys.A_dim]
-    # Big_B = Big_B[sys.attacked_element_idx::sys.A_dim]
-    # print(f'new Big_A shape {Big_A.shape}')
-    # print(f'new Big_B shape {Big_B.shape}')
+    # assert (Big_B.shape[0] == 3*sys.A_dim*steps and Big_B.shape[1] == 1), f"actual: {Big_B.shape} [CUSUM {CUSUM_Big_B.shape}, CONTROL {CONTROL_Big_B.shape}, ABS_VALUE {ABS_VALUE_Big_B.shape}], expected: {(3*sys.A_dim*steps, 1)}"
 
     """     and OPTIMIZATION Below...
     """
@@ -121,9 +114,6 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
         small_c = np.block(small_c)
         assert (small_c.shape[0] == sys.A_dim*steps and small_c.shape[1] == 1), f"actual: {small_c.shape}, expected: {(sys.A_dim*steps, 1)}"
 
-        # small_c = small_c[sys.attacked_element_idx::sys.A_dim]
-        # print(f'new small_c shape {small_c.shape}')
-
         if method == 'CVXOPT':
             sol = solvers.lp(matrix(small_c, (len(small_c), 1), 'd'), matrix(Big_A), matrix(Big_B, (len(Big_B), 1), 'd'), solver='glpk')
             sols.append(list(sol['x']))
@@ -140,7 +130,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     sols = np.array(sols) # shape = (steps-1) * steps
     objs = np.array(objs) # shape = (steps-1)
     j = np.argmax(objs)
-    print(f'optimal attack: {sols[-sys.A_dim]}')
+    # print(f'optimal attack: {sols[-sys.A_dim]}')
     return sols[-sys.A_dim], Big_A, Big_B, small_c
 
 def attacked_state(sys, short_window, type = 'surge'):
@@ -164,24 +154,26 @@ def attacked_state(sys, short_window, type = 'surge'):
     atk = 0
     scores = []
     y_real_arr = []
+    Us = []
     for slot_idx in range(sys.total_time_slots+1):
+        # print(f'simulation step {slot_idx}')
         # step
         cin = sys.u + K @ (sys.x_ref - x_measured)
+        Us.append(cin)
         if cin > sys.u_upbound_tuned:
             cin = sys.u_upbound_tuned
-        
-        if sys.A_dim == 1:
-            cin = cin[0, 0] # converts (1,1) array to float
+        cin = cin[0, 0] # converts (1,1) array to float
+            
         yout, T, xout = lsim(sys.sysc, cin, [0, sys.dt], x_measured)
         yout_real, T_real, xout_real = lsim(sys.sysc, cin, [0, sys.dt], x_real)
 
-        x_real = xout_real[-1]
-        x_pred = xout[-1]
-        x_measured = xout[-1] - atk
+        x_real = xout_real[-1].reshape(sys.A_dim, 1)
+        x_pred = xout[-1].reshape(sys.A_dim, 1)
+        x_measured = xout[-1].reshape(sys.A_dim, 1) - atk
 
         if slot_idx > sys.slot_for_start_of_attack - 1 and type == 'optimal':
             # overwrite x_measured
-            x_measured = sys.optimal_attack[slot_idx - sys.slot_for_start_of_attack - 1]
+            x_measured = sys.optimal_attack[slot_idx - sys.slot_for_start_of_attack]
 
         if slot_idx > sys.slot_for_start_of_attack:
             # compute atk
@@ -201,8 +193,9 @@ def attacked_state(sys, short_window, type = 'surge'):
         
         # save
         scores.append(CUSUM_score)
-        y_real_arr.append(x_real)
-    
+        y_real_arr.append(x_real[sys.attacked_element_idx])
+        
     # print(type, y_real_arr)
+    # print(f'Control inputs are: {Us}')
     return sys.t_arr, y_real_arr
 

@@ -64,7 +64,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False):
     """
     # CUSUM 
     CUSUM_Big_B = []
-    # sys.u = np.array([[1.667]]) # we use exact u unlike in Mengyu's ipyhton-notebooks which uses this
+    # sys.u = np.array([[1.667]]) # we use exact u unlike in Mengyu's ipyhton-notebooks which uses this!
     for row_idx in range(steps):
         if row_idx < short_window:
             row = [sys.CUSUM_thresh - (sys.Ad - sys.Bd @ K) @ sys.x0 - (row_idx+1)*(sys.Bd @ K @ sys.x_ref + sys.Bd @ sys.u - sys.CUSUM_drift)]
@@ -105,12 +105,16 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False):
         """     OBJECTIVE FN. =  small_C_{ (A_dim*steps) x (1)} ^T @ Big_X
         """
         small_c = []
-        for row_idx in range(steps):
-            matrix_coeff_of_x = np.linalg.matrix_power(sys.Ad, f - row_idx - 1) @ sys.Bd @ K
-            row_corresponding_to_attacked_element = matrix_coeff_of_x[sys.attacked_element_idx, :].reshape(sys.A_dim, 1)
-            row = [ row_corresponding_to_attacked_element ]
+        for i in range(steps):
+            if i < f:
+                matrix_coeff_of_x = np.linalg.matrix_power(sys.Ad, f - i - 1) @ sys.Bd @ K
+                row_corresponding_to_attacked_element_reshaped_to_col = matrix_coeff_of_x[sys.attacked_element_idx, :].reshape(sys.A_dim, 1)
+                row = [ row_corresponding_to_attacked_element_reshaped_to_col ]
+            else:
+                row = [ np.zeros((sys.A_dim, 1)) ]
             small_c.append(row)
         small_c = np.block(small_c)
+        print(small_c)
         
         assert (small_c.shape[0] == sys.A_dim*steps and small_c.shape[1] == 1), f"actual: {small_c.shape}, expected: {(sys.A_dim*steps, 1)}"
 

@@ -1,3 +1,9 @@
+# General code running instructions
+Set system name and short_window size in run.py. Then,
+```
+python run.py
+```
+
 # Hidden_attack_RTSS22
 
 Optimization files:

@@ -9,8 +9,9 @@ from scipy.optimize import linprog
 import matplotlib.pyplot as plt
 from matplotlib import markers
 from control.matlab import lsim
+import cvxpy as cp
 
-def short_mem_opt_attack(sys, steps, short_window, verbose = False):
+def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CVXOPT'):
     # Solve CARE for optimal control K backward from infinity horizon
     P = np.array(linalg.solve_continuous_are(sys.A, sys.B, sys.Q, sys.R))
     K = np.array(linalg.inv(sys.R) * (sys.B.T @ P)) # shape = 1 x sys.A_dim
@@ -94,8 +95,12 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False):
     Big_B = np.vstack((CUSUM_Big_B, CONTROL_Big_B, ABS_VALUE_Big_B))
     assert (Big_B.shape[0] == 3*sys.A_dim*steps and Big_B.shape[1] == 1), f"actual: {Big_B.shape} [CUSUM {CUSUM_Big_B.shape}, CONTROL {CONTROL_Big_B.shape}, ABS_VALUE {ABS_VALUE_Big_B.shape}], expected: {(3*sys.A_dim*steps, 1)}"
 
-    # return 0, Big_A, Big_B
-    
+    # """     Let's take only the specific row of every A_dim step from Big_A/Big_B 
+    # """
+    # Big_A = Big_A[sys.attacked_element_idx::sys.A_dim, sys.attacked_element_idx::sys.A_dim]
+    # Big_B = Big_B[sys.attacked_element_idx::sys.A_dim]
+    # print(f'new Big_A shape {Big_A.shape}')
+    # print(f'new Big_B shape {Big_B.shape}')
 
     """     and OPTIMIZATION Below...
     """
@@ -114,17 +119,28 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False):
                 row = [ np.zeros((sys.A_dim, 1)) ]
             small_c.append(row)
         small_c = np.block(small_c)
-        print(small_c)
-        
         assert (small_c.shape[0] == sys.A_dim*steps and small_c.shape[1] == 1), f"actual: {small_c.shape}, expected: {(sys.A_dim*steps, 1)}"
 
-        sol = solvers.lp(matrix(small_c, (len(small_c), 1), 'd'), matrix(Big_A), matrix(Big_B, (len(Big_B), 1), 'd'), solver='glpk')
-        sols.append(list(sol['x']))
-        objs.append(sol['primal objective'])
+        # small_c = small_c[sys.attacked_element_idx::sys.A_dim]
+        # print(f'new small_c shape {small_c.shape}')
+
+        if method == 'CVXOPT':
+            sol = solvers.lp(matrix(small_c, (len(small_c), 1), 'd'), matrix(Big_A), matrix(Big_B, (len(Big_B), 1), 'd'), solver='glpk')
+            sols.append(list(sol['x']))
+            objs.append(sol['primal objective'])
+
+        elif method == 'CVXPY':
+            Big_X = cp.Variable((sys.A_dim * steps, 1))
+            prob = cp.Problem(cp.Minimize(small_c.T @ Big_X),
+                            [Big_A @ Big_X <= Big_B])
+            prob.solve()
+            sols.append(Big_X.value)
+            objs.append(prob.value)
 
     sols = np.array(sols) # shape = (steps-1) * steps
     objs = np.array(objs) # shape = (steps-1)
     j = np.argmax(objs)
+    print(f'optimal attack: {sols[-sys.A_dim]}')
     return sols[-sys.A_dim], Big_A, Big_B, small_c
 
 def attacked_state(sys, short_window, type = 'surge'):

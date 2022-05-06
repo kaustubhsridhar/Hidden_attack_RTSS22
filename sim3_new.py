@@ -83,15 +83,15 @@ class dc:
         self.D = np.array([[0]])
         self.Q = np.eye(self.A_dim)
         self.R = np.array([[1]])
-        self.dt = 0.02
+        self.dt = 0.2
         self.x_ref = np.array([[math.pi / 2.0], [0], [0]])
 
         self.CUSUM_thresh = np.array([[5]])
         self.CUSUM_drift = np.array([[0]])
         self.x0 = np.copy(self.x_ref)
-        self.u_upbound_tuned = np.array([[2.2]])
+        self.u_upbound_tuned = np.array([[1.58]])
 
-        self.total_time = 10
+        self.total_time = 120
 
         # no need to change
         self.sysc = ss(self.A, self.B, self.C, self.D)
@@ -135,9 +135,53 @@ class RLC:
         self.x_ref = np.array([[3], [0]])
 
         self.CUSUM_thresh = np.array([[3]])
-        self.CUSUM_drift = np.array([[0.1]])
+        self.CUSUM_drift = np.array([[0]])
         self.x0 = np.copy(self.x_ref)
-        self.u_upbound_tuned = np.array([[2.2]])
+        self.u_upbound_tuned = np.array([[4.25]])
+
+        self.total_time = 10
+
+        # no need to change
+        self.sysc = ss(self.A, self.B, self.C, self.D)
+        self.sysd = c2d(self.sysc, self.dt)
+        self.Ad = np.array(self.sysd.A)
+        self.Bd = np.array(self.sysd.B)
+        self.Bd_inv = np.linalg.pinv(self.Bd)
+        self.u = -1 * self.Bd_inv @ (self.Ad - np.eye(self.A_dim)) @ self.x_ref
+        self.I = np.eye(self.A_dim)
+        self.Zero = np.zeros((self.A_dim, self.A_dim))
+
+        # for utils.py>attacked_state()
+        # check / change
+        self.total_time_slots = int(self.total_time / self.dt) # = 10/0.02 = 500
+        self.slot_for_start_of_attack = self.total_time_slots - 100 # 100 because steps = 100
+        self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)
+
+class ap:
+    count = 0
+
+    def __init__(self, epsilon=1e-7):
+        # for utils.py>short_mem_opt_attack()
+        # change only below!
+
+        self.A = np.array([[-0.313, 56.7, 0],
+         [-0.0139, -0.426, 0],
+         [0, 56.7, 0]])
+        self.B = np.array([[0.232], [0.0203], [0]])
+        self.C = np.array([[0, 0, 1]])
+        self.D = np.array([[0]])
+
+        self.A_dim = len(self.A)
+        self.attacked_element_idx = 2
+        self.Q = np.eye(self.A_dim)
+        self.R = np.array([[1]])
+        self.dt = 0.02
+        self.x_ref = np.array([[0], [0], [0.7]])
+
+        self.CUSUM_thresh = np.array([[3]])
+        self.CUSUM_drift = np.array([[0]])
+        self.x0 = np.copy(self.x_ref)
+        self.u_upbound_tuned = np.array([[0.7]])
 
         self.total_time = 10
 

@@ -14,8 +14,8 @@ from utils import *
 
 # Compute optimal hidden attack against long memory CUSUM detector
 # Input: a sys, in [vt(), dc(), ap(), qd(), RLC(), DCS(), dcspeed()]
-name_of_sys = 'dc'
-short_window = 20
+name_of_sys = 'RLC'
+short_window = 100
 sys = eval(f'{name_of_sys}()')
 
 t_arr, geo = attacked_state(eval(f'{name_of_sys}()'), short_window = short_window, type = 'geo')
@@ -70,11 +70,13 @@ elif name_of_sys == 'dc':
     y_label = 'Rotation Angle'
     # ax.set_ylim(0.9,1.35)
     # ax.set_xlim(99,121)
-    ax.set_xlim(7.8,10) 
+    ax.set_xlim(99, 121) 
 elif name_of_sys == 'RLC':
     y_label = 'Voltage'
+    ax.set_xlim(7.8,10) 
 elif name_of_sys == 'ap':
     y_label = 'Pitch'
+    ax.set_xlim(7.8,10) 
 
 ax.plot(t_arr, geo, label='geometric', color = 'blue', linewidth=2, marker=markers.CARETDOWNBASE)
 ax.plot(t_arr, surge, label='surge', color = 'r', linewidth=2, marker='p')
@@ -82,9 +84,9 @@ ax.plot(t_arr, bias, label='bias', color = 'brown', linewidth=2, marker='^')
 
 ax.plot(t_arr, optimal_attacked_states, label='optimal', color = 'Orange', linewidth=2, marker='v')
 
-reference_states = [sys.x_ref[0,0]]*len(t_arr)
+reference_states = [sys.x_ref[sys.attacked_element_idx, 0]]*len(t_arr)
 ax.plot(t_arr, reference_states, label='reference', color='black', ls='--')
 
 ax.set_ylabel(y_label, fontsize=14)
 ax.legend()
-plt.savefig(f'./plot.png')
+plt.savefig(f'./plot_{name_of_sys}_{short_window}.png')

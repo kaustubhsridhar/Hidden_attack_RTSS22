@@ -59,7 +59,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     ABS_VALUE_Big_A = np.block(ABS_VALUE_Big_A)
     # Finally, we have, for Big_A...
     Big_A = np.vstack((CUSUM_Big_A, CONTROL_Big_A, ABS_VALUE_Big_A))
-    # assert (Big_A.shape[0] == 3*sys.A_dim*steps and Big_A.shape[1] == sys.A_dim*steps), f"actual: {Big_A.shape} [CUSUM {CUSUM_Big_A.shape}, CONTROL {CONTROL_Big_A.shape}, ABS_VALUE {ABS_VALUE_Big_A.shape}], expected: {(3*sys.A_dim*steps, sys.A_dim*steps)}"
+    assert (Big_A.shape[0] == 3*sys.A_dim*steps and Big_A.shape[1] == sys.A_dim*steps), f"actual: {Big_A.shape} [CUSUM {CUSUM_Big_A.shape}, CONTROL {CONTROL_Big_A.shape}, ABS_VALUE {ABS_VALUE_Big_A.shape}], expected: {(3*sys.A_dim*steps, sys.A_dim*steps)}"
 
     """     We have the same 3 sets of constrainst for Big_B also as follows 
     """
@@ -93,7 +93,7 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     ABS_VALUE_Big_B = np.block(ABS_VALUE_Big_B)
     # Finally, we have, Big_B...
     Big_B = np.vstack((CUSUM_Big_B, CONTROL_Big_B, ABS_VALUE_Big_B))
-    # assert (Big_B.shape[0] == 3*sys.A_dim*steps and Big_B.shape[1] == 1), f"actual: {Big_B.shape} [CUSUM {CUSUM_Big_B.shape}, CONTROL {CONTROL_Big_B.shape}, ABS_VALUE {ABS_VALUE_Big_B.shape}], expected: {(3*sys.A_dim*steps, 1)}"
+    assert (Big_B.shape[0] == 3*sys.A_dim*steps and Big_B.shape[1] == 1), f"actual: {Big_B.shape} [CUSUM {CUSUM_Big_B.shape}, CONTROL {CONTROL_Big_B.shape}, ABS_VALUE {ABS_VALUE_Big_B.shape}], expected: {(3*sys.A_dim*steps, 1)}"
 
     """     and OPTIMIZATION Below...
     """
@@ -130,7 +130,6 @@ def short_mem_opt_attack(sys, steps, short_window, verbose = False, method = 'CV
     sols = np.array(sols) # shape = (steps-1) * steps
     objs = np.array(objs) # shape = (steps-1)
     j = np.argmax(objs)
-    # print(f'optimal attack: {sols[-sys.A_dim]}')
     return sols[-sys.A_dim], Big_A, Big_B, small_c
 
 def attacked_state(sys, short_window, type = 'surge'):
@@ -171,9 +170,9 @@ def attacked_state(sys, short_window, type = 'surge'):
         x_pred = xout[-1].reshape(sys.A_dim, 1)
         x_measured = xout[-1].reshape(sys.A_dim, 1) - atk
 
-        if slot_idx > sys.slot_for_start_of_attack - 1 and type == 'optimal':
+        if slot_idx > sys.slot_for_start_of_attack and type == 'optimal':
             # overwrite x_measured
-            x_measured = sys.optimal_attack[slot_idx - sys.slot_for_start_of_attack]
+            x_measured = sys.optimal_attack[slot_idx - sys.slot_for_start_of_attack - 1]
 
         if slot_idx > sys.slot_for_start_of_attack:
             # compute atk

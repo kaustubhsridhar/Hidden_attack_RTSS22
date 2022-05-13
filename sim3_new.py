@@ -45,6 +45,11 @@ class vt:
 
         self.total_time = 10
 
+        self.alpha = 0.75 # for geo attack
+        self.beta = 0.85 # for geo attack
+        self.steps = 100
+        self.u_lowbound = -1
+
         # no need to change
         self.sysc = ss(self.A, self.B, self.C, self.D)
         self.sysd = c2d(self.sysc, self.dt)
@@ -58,7 +63,7 @@ class vt:
         # for utils.py>attacked_state()
         # check / change
         self.total_time_slots = int(self.total_time / self.dt) # = 10/0.02 = 500
-        self.slot_for_start_of_attack = int(4/5 * self.total_time_slots) # = 400
+        self.slot_for_start_of_attack = self.total_time_slots - self.steps
         self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)
 
 class dc:
@@ -86,12 +91,17 @@ class dc:
         self.dt = 0.2
         self.x_ref = np.array([[math.pi / 2.0], [0], [0]])
 
-        self.CUSUM_thresh = np.array([[5]])
+        self.CUSUM_thresh = np.array([[16]])
         self.CUSUM_drift = np.array([[0]])
         self.x0 = np.copy(self.x_ref)
         self.u_upbound_tuned = np.array([[1.58]])
 
         self.total_time = 120
+
+        self.alpha = 0.8 # for geo attack
+        self.beta = 0.7 # for geo attack
+        self.steps = 100
+        self.u_lowbound = None
 
         # no need to change
         self.sysc = ss(self.A, self.B, self.C, self.D)
@@ -109,7 +119,7 @@ class dc:
         # for utils.py>attacked_state()
         # check / change
         self.total_time_slots = int(self.total_time / self.dt) # = 120/0.2 = 600
-        self.slot_for_start_of_attack = self.total_time_slots - 100 # 100 because steps = 100
+        self.slot_for_start_of_attack = self.total_time_slots - self.steps 
         self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)
 
 class RLC:
@@ -134,12 +144,17 @@ class RLC:
         self.dt = 0.02
         self.x_ref = np.array([[3], [0]])
 
-        self.CUSUM_thresh = np.array([[3]])
+        self.CUSUM_thresh = np.array([[5]])
         self.CUSUM_drift = np.array([[0]])
         self.x0 = np.copy(self.x_ref)
         self.u_upbound_tuned = np.array([[4.25]])
 
         self.total_time = 10
+
+        self.alpha = 0.8 # for geo attack
+        self.beta = 0.7 # for geo attack
+        self.steps = 100
+        self.u_lowbound = None
 
         # no need to change
         self.sysc = ss(self.A, self.B, self.C, self.D)
@@ -154,7 +169,7 @@ class RLC:
         # for utils.py>attacked_state()
         # check / change
         self.total_time_slots = int(self.total_time / self.dt) # = 10/0.02 = 500
-        self.slot_for_start_of_attack = self.total_time_slots - 100 # 100 because steps = 100
+        self.slot_for_start_of_attack = self.total_time_slots - self.steps
         self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)
 
 class ap:
@@ -179,11 +194,16 @@ class ap:
         self.x_ref = np.array([[0], [0], [0.7]])
 
         self.CUSUM_thresh = np.array([[3]])
-        self.CUSUM_drift = np.array([[0]])
+        self.CUSUM_drift = np.array([[0.]])
         self.x0 = np.copy(self.x_ref)
         self.u_upbound_tuned = np.array([[0.7]])
 
         self.total_time = 10
+
+        self.alpha = 0.8 # for geo attack
+        self.beta = 0.7 # for geo attack
+        self.steps = 100
+        self.u_lowbound = None
 
         # no need to change
         self.sysc = ss(self.A, self.B, self.C, self.D)
@@ -198,5 +218,5 @@ class ap:
         # for utils.py>attacked_state()
         # check / change
         self.total_time_slots = int(self.total_time / self.dt) # = 10/0.02 = 500
-        self.slot_for_start_of_attack = self.total_time_slots - 100 # 100 because steps = 100
+        self.slot_for_start_of_attack = self.total_time_slots - self.steps
         self.t_arr = linspace(0, self.total_time, self.total_time_slots + 1)

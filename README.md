@@ -8,9 +8,9 @@ python run.py
 ```
 from utils import short_mem_opt_attack_for_CSR, long_mem_opt_attack_for_CSR
 
-max_deviation_float = short_mem_opt_attack_for_CSR(sys, start_state, short_window = short_window)
+max_deviation_float = short_mem_opt_attack_for_CSR(sys, start_state, short_window = 20)
 
-max_deviation_float = long_mem_opt_attack_for_CSR(sys, start_state, short_window = short_window)
+max_deviation_float = long_mem_opt_attack_for_CSR(sys, start_state)
 
 ```
 

@@ -15,7 +15,7 @@ from utils import *
 # Compute optimal hidden attack against long memory CUSUM detector
 # Input: a sys, in [vt(), dc(), ap(), qd(), RLC(), DCS(), dcspeed()]
 for name_of_sys in ['vt', 'RLC', 'ap', 'dc']:
-    for short_window in ['long', 5, 20, 50]:
+    for short_window in ['long', 5, 20, 50, 75]:
         sys = eval(f'{name_of_sys}()')
 
         t_arr, geo = attacked_state(eval(f'{name_of_sys}()'), short_window = short_window, type = 'geo')
@@ -24,9 +24,9 @@ for name_of_sys in ['vt', 'RLC', 'ap', 'dc']:
         # exit()
 
         if short_window == 'long':
-            optimal_attack, Big_A, Big_B, small_c = long_mem_opt_attack(sys, verbose = 1)
+            optimal_attack, Big_A, Big_B, small_c = long_mem_opt_attack(sys)
         else:
-            optimal_attack, Big_A, Big_B, small_c = short_mem_opt_attack(sys, short_window = short_window, verbose = 1)
+            optimal_attack, Big_A, Big_B, small_c = short_mem_opt_attack(sys, short_window = short_window)
 
         # orig_Big_A = np.load(f'Big_A_{short_window}_orig.npy')
         # orig_Big_B = np.load(f'Big_B_{short_window}_orig.npy')

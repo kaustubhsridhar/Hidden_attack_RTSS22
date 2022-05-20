@@ -4,7 +4,7 @@ Set system name and short_window size in run.py. Then,
 python run.py
 ```
 
-# FOr CSR
+# For CSR
 ```
 from utils import short_mem_opt_attack_for_CSR, long_mem_opt_attack_for_CSR
 

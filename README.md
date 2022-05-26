@@ -14,6 +14,28 @@ max_deviation_float = long_mem_opt_attack_for_CSR(sys, start_state)
 
 ```
 
+# Trajectories
+
+Long
+```
+sys = RLC() # or vt() or dc()
+optimal_attack, _, _, _ = long_mem_opt_attack(sys)
+sys.optimal_attack = optimal_attack
+t_arr, optimal_attacked_states = attacked_state(sys, short_window = short_window, type = 'optimal')
+plt.plot(t_arr, optimal_attacked_states
+```
+
+Short
+```
+short_window = 10
+sys = RLC() # or vt() or dc()
+optimal_attack, _, _, _ = short_mem_opt_attack(sys, short_window=short_window)
+sys.optimal_attack = optimal_attack
+t_arr, optimal_attacked_states = attacked_state(sys, short_window = short_window, type = 'optimal')
+plt.plot(t_arr, optimal_attacked_states
+```
+
+
 # Hidden_attack_RTSS22
 
 Optimization files:

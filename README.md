@@ -1,4 +1,6 @@
-# General code running instructions
+# Fail-Safe: Securing Cyber-Physical Systems against Hidden Sensor Attacks
+This repository conatins the code for the paper available at https://ieeexplore.ieee.org/abstract/document/9984726
+
 Set system name and short_window size in run.py. Then,
 ```
 python run.py
